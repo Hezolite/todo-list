@@ -1,0 +1,410 @@
+:root {
+  --primary-color: #9797CE;
+  --secondary-color: #9370DB;
+  --light-color: #E6E6FA;
+  --text-color: #333333;
+  --light-text: #888888;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  margin: 0;
+  padding: 0;
+  background-color: #F6F5FB;
+  color: var(--text-color);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logo {
+  font-size: 24px;
+  font-family: 'Krona One', sans-serif;
+}
+
+.logo-icon {
+  width: 30px; /* Размер иконки */
+  height: 30px;
+}
+
+.current-date {
+  font-size: 24px;
+  color: var(--text-color);
+  font-family: 'Krona One', sans-serif;
+}
+
+.container {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 20px;
+  gap: 20px;
+}
+
+.weekly-tasks {
+  width: 280px;
+}
+
+.weekly-task-block {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--box-shadow);
+}
+
+.weekly-task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  color: var(--primary-color);
+  font-size: 20px;
+}
+
+.weekly-task-header button {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.weekly-task-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  margin: 0;
+}
+
+.weekly-task-checkbox {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--light-text);
+  border-radius: 4px;
+  margin-right: 12px;
+  cursor: pointer;
+  position: relative;
+}
+
+.weekly-task-checkbox:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.weekly-task-checkbox:checked::after {
+  content: "✓";
+  position: absolute;
+  color: white;
+  font-size: 12px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.weekly-task-label {
+  flex-grow: 1;
+  font-size: 15px;
+  color: var(--text-color);
+}
+
+.weekly-task-input {
+  width: 100%;
+  padding: 10px 12px;
+  margin: 10px 0 0;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text-color);
+  box-sizing: border-box;
+  display: none;
+}
+
+.weekly-task-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.add-group-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.main-content {
+  flex-grow: 1;
+}
+
+.date-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  box-shadow: var(--box-shadow);
+}
+
+.date-selector button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--primary-color);
+  cursor: pointer;
+  padding: 8px 12px;
+}
+
+.date-list {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
+  justify-content: space-around;
+}
+
+.date-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.date-item:hover {
+  background-color: var(--light-color);
+}
+
+.date-item.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.date-number {
+  font-size:26px;
+  font-weight: 400;
+  margin-bottom: 4px;
+}
+
+.weekday {
+  font-size: 26px;
+  text-transform: capitalize;
+}
+
+.main-containers {
+  display: flex;
+  gap: 20px;
+}
+
+.tasks-container {
+  flex-grow: 1;
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 24px;
+  box-shadow: var(--box-shadow);
+}
+
+.tasks-header {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 30px;
+  font-weight: 400;
+  font-family: 'Krona One';
+}
+
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.task-checkbox {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--light-text);
+  border-radius: 6px;
+  margin-right: 12px;
+  margin-top: 2px;
+  cursor: pointer;
+  position: relative;
+}
+
+.task-checkbox:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.task-checkbox:checked::after {
+  content: "✓";
+  position: absolute;
+  color: white;
+  font-size: 14px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.task-text {
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.task-title {
+  font-weight: 400;
+  margin-bottom: 6px;
+  font-size: 20px;
+  word-break: break-word;
+}
+
+.task-details {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.right-column {
+  width: 280px;
+}
+
+.progress-block {
+  padding: 24px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.progress-percentage {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 10px 0
+  color: var(--primary-color);
+  font-family: 'Krona One', sans-serif;
+}
+
+.progress-text {
+  color: var(--light-text);
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.add-task-form {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 24px;
+  box-shadow: var(--box-shadow);
+}
+
+.add-task-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--primary-color);
+  font-size: 15px;
+}
+
+.add-task-form input,
+.add-task-form textarea {
+  width: calc(100% - 24px);
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.add-task-form input:focus,
+.add-task-form textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.add-task-form textarea {
+  height: 80px;
+  resize: vertical;
+  font-family: 'Roboto', sans-serif;
+}
+
+.add-task-form button {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.editable-group-name {
+  outline: none;
+  margin-right: 10px;
+  display: inline-block;
+  min-width: 100px;
+  cursor: text;
+}
+.progress-circle {
+  width: 160px;
+  height: 160px;
+  margin: 0 auto 10px;
+  position: relative;
+}
+
+.progress-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg); /* Начальная точка: 12 часов */
+}
+
+.progress-ring-circle-bg {
+  fill: none;
+  stroke: #f0f0f0; /* Цвет фона */
+  stroke-width: 8;
+}
+
+.progress-ring-circle {
+  fill: none;
+  stroke: var(--primary-color); /* Цвет прогресса */
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 283; /* 2πr (2 * 3.14 * 45 ≈ 283) */
+  stroke-dashoffset: 283; /* Начальное значение (0% прогресса) */
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.progress-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px; /* Размер иконки */
+  height: 60px;
+}

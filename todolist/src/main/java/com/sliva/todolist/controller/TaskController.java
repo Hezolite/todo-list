@@ -2,11 +2,11 @@ package com.sliva.todolist.controller;
 
 import com.sliva.todolist.model.Task;
 import com.sliva.todolist.repository.TaskRepository;
-import org.antlr.v4.runtime.misc.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RequestMapping(value = "/todolist")
 @RestController
@@ -25,8 +25,15 @@ public class TaskController {
         return taskRepository.save(task);
     }
 
-    @PutMapping
-    public Task update(@RequestBody Task task) {
+    @PutMapping(value = "/{id}")
+    public Task updateTask(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        if (updates.containsKey("completed")) {
+            task.setCompleted((Boolean) updates.get("completed"));
+        }
+
         return taskRepository.save(task);
     }
 
