@@ -1,4 +1,3 @@
-const tasksStorage = {};
 let currentDate = new Date();
 let selectedDate = new Date();
 let taskGroups = [
@@ -76,47 +75,63 @@ function changeWeek(direction) {
 function loadDailyTasks() {
   const dailyTasks = document.getElementById('dailyTasks');
   const dateKey = selectedDate.toISOString().split('T')[0];
-  
-  if (!tasksStorage[dateKey]) {
-    tasksStorage[dateKey] = [
-      {
-        id: 'task-1',
-        title: 'Заказать воду',
-        description: 'Заказать 4 бутылки воды на вторник (1.04) к 16:00',
-        completed: false
-      },
-      {
-        id: 'task-2',
-        title: 'Заказать воду',
-        description: 'Заказать 4 бутылки воды на вторник (1.04) к 16:00',
-        completed: false
-      }
-    ];
-  }
-  
-  dailyTasks.innerHTML = '';
-  
-  tasksStorage[dateKey].forEach(task => {
-    const taskElement = document.createElement('div');
-    taskElement.className = 'task-item';
-    taskElement.innerHTML = `
-      <input type="checkbox" id="${task.id}" class="task-checkbox" ${task.completed ? 'checked' : ''} 
-        onchange="toggleTaskCompletion('${dateKey}', '${task.id}')">
-      <div class="task-text">
-        <div class="task-title">${task.title}</div>
-        <div class="task-details">${task.description}</div>
-      </div>
-    `;
-    dailyTasks.appendChild(taskElement);
-  });
+
+  fetch(`/todolist`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Ошибка сети' + response.statusText);
+        }
+        return response.json();
+      })
+      .then(tasks => {
+        dailyTasks.innerHTML = '';
+
+        const dailyTasksForDate = tasks.filter(task => task.deadline === dateKey);
+
+        dailyTasksForDate.forEach(task => {
+          const taskElement = document.createElement('div');
+          taskElement.className = 'task-item';
+          taskElement.innerHTML = `
+          <input type="checkbox" id="${task.id}" class="task-checkbox" ${task.completed ? 'checked' : ''} 
+            onchange="toggleTaskCompletion('${dateKey}', '${task.id}')">
+          <div class="task-text">
+            <div class="task-title">${task.title}</div>
+            <div class="task-details">${task.description}</div>
+          </div>
+        `;
+          dailyTasks.appendChild(taskElement);
+        });
+      })
+      .catch(error => {
+        console.error('Ошибка:', error);
+      });
 }
 
 function toggleTaskCompletion(dateKey, taskId) {
-  const task = tasksStorage[dateKey].find(t => t.id === taskId);
-  if (task) {
-    task.completed = !task.completed;
-    updateProgress();
-  }
+  const checkbox = document.getElementById(taskId);
+  const completed = checkbox.checked;
+
+  fetch(`/todolist/${taskId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ completed: completed })
+  })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Ошибка сети' + response.statusText);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Задача обновлена:', data);
+        updateProgress();
+      })
+      .catch(error => {
+        console.error('Ошибка:', error);
+        checkbox.checked = !completed;
+      });
 }
 
 function loadWeeklyTasks() {
@@ -236,41 +251,70 @@ function addTask() {
   const description = document.getElementById('task-description').value.trim();
   
   if (!title) return;
-  
-  const dateKey = selectedDate.toISOString().split('T')[0];
-  const newId = 'task-' + Date.now();
-  
-  if (!tasksStorage[dateKey]) {
-    tasksStorage[dateKey] = [];
-  }
-  
-  tasksStorage[dateKey].push({
-    id: newId,
+
+  const deadline = selectedDate.toISOString().split('T')[0];
+
+  const task = {
     title: title,
     description: description,
+    deadline: deadline,
     completed: false
-  });
-  
-  loadDailyTasks();
-  document.getElementById('task-title').value = '';
-  document.getElementById('task-description').value = '';
-  updateProgress();
+  };
+
+  fetch('/todolist', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(task)
+  })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Ошибка сети' + response.statusText);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Задача добавлена:', data);
+        document.getElementById('task-title').value = '';
+        document.getElementById('task-description').value = '';
+        loadDailyTasks();
+      })
+      .catch(error => {
+        console.error('Ошибка:', error);
+      });
 }
 
 function updateProgress() {
   const dateKey = selectedDate.toISOString().split('T')[0];
-  const dailyTasks = tasksStorage[dateKey] || [];
-  
-  if (dailyTasks.length === 0) {
-    document.getElementById('progressPercentage').textContent = '0%';
-    updateCircleProgress(0);
-    return;
-  }
-  
-  const completedTasks = dailyTasks.filter(task => task.completed).length;
-  const progress = Math.round((completedTasks / dailyTasks.length) * 100);
-  document.getElementById('progressPercentage').textContent = progress + '%';
-  updateCircleProgress(progress);
+
+  fetch(`/todolist`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Ошибка сети'+ response.statusText);
+        }
+        return response.json();
+      })
+      .then(tasks => {
+        const dailyTasksForDate = tasks.filter(task => task.deadline === dateKey);
+
+        if (dailyTasksForDate.length === 0) {
+          document.getElementById('progressPercentage').textContent = '0%';
+          updateCircleProgress(0);
+          return;
+        }
+
+        const completedTasks = dailyTasksForDate.filter(task => task.completed).length;
+        const progress = Math.round((completedTasks / dailyTasksForDate.length) * 100);
+
+        document.getElementById('progressPercentage').textContent = progress + '%';
+        updateCircleProgress(progress);
+      })
+      .catch(error => {
+        console.error('Ошибка при загрузке задач:', error);
+        document.getElementById('progressPercentage').textContent = '0%';
+        updateCircleProgress(0);
+      });
 }
 
 function updateCircleProgress(percent) {
