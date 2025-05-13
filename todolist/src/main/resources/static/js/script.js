@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
   loadDailyTasks();
   loadWeeklyTasks();
   updateProgress();
+  addDeleteButtonsEventListeners();
 });
 
 function updateCurrentDate() {
@@ -92,15 +93,17 @@ function loadDailyTasks() {
           const taskElement = document.createElement('div');
           taskElement.className = 'task-item';
           taskElement.innerHTML = `
-          <input type="checkbox" id="${task.id}" class="task-checkbox" ${task.completed ? 'checked' : ''} 
-            onchange="toggleTaskCompletion('${dateKey}', '${task.id}')">
+          <input type="checkbox" id="${task.id}" class="task-checkbox" ${task.completed ? 'checked' : ''}
+          onchange="toggleTaskCompletion('${dateKey}', '${task.id}')">
           <div class="task-text">
             <div class="task-title">${task.title}</div>
             <div class="task-details">${task.description}</div>
           </div>
-        `;
+          <button class="delete-button" data-task-id="${task.id}" data-task-type="daily">×</button>
+          `;
           dailyTasks.appendChild(taskElement);
         });
+        addDeleteButtonsEventListeners();
       })
       .catch(error => {
         console.error('Ошибка:', error);
@@ -145,11 +148,15 @@ function loadWeeklyTasks() {
       <div class="weekly-task-header">
         <span class="editable-group-name">${group.title}</span>
         <button onclick="showWeeklyTaskInput(this)">+</button>
+        <button class="delete-group-button" data-group-id="${group.id}">×</button>
       </div>
       ${group.tasks.map(task => `
         <div class="weekly-task-item">
-          <input type="checkbox" id="${task.id}" class="weekly-task-checkbox" ${task.completed ? 'checked' : ''}>
-          <label for="${task.id}" class="weekly-task-label">${task.title}</label>
+          <div class="task-content">
+            <input type="checkbox" id="${task.id}" class="weekly-task-checkbox" ${task.completed ? 'checked' : ''}>
+            <label for="${task.id}" class="weekly-task-label">${task.title}</label>
+          </div>
+          <button class="delete-button" data-task-id="${task.id}" data-task-group="${group.id}" data-task-type="weekly">×</button>
         </div>
       `).join('')}
       <input type="text" class="weekly-task-input" placeholder="Введите задачу">
@@ -172,6 +179,7 @@ function loadWeeklyTasks() {
   addGroupBtn.textContent = 'Добавить группу';
   addGroupBtn.onclick = addNewTaskGroup;
   container.appendChild(addGroupBtn);
+  addDeleteButtonsEventListeners();
 }
 
 function showWeeklyTaskInput(button) {
@@ -187,13 +195,17 @@ function showWeeklyTaskInput(button) {
       const newTask = document.createElement('div');
       newTask.className = 'weekly-task-item';
       newTask.innerHTML = `
-        <input type="checkbox" id="${newId}" class="weekly-task-checkbox">
-        <label for="${newId}" class="weekly-task-label">${input.value.trim()}</label>
+         <div class="task-content">
+          <input type="checkbox" id="${newId}" class="weekly-task-checkbox">
+          <label for="${newId}" class="weekly-task-label">${input.value.trim()}</label>
+        </div>
+        <button class="delete-button" data-task-id="${newId}" data-task-group="${taskBlock.querySelector('.editable-group-name').textContent.toLowerCase().replace(' ', '-')}" data-task-type="weekly">×</button>
       `;
-      
+
       taskBlock.insertBefore(newTask, input);
       input.value = '';
       input.style.display = 'none';
+      addDeleteButtonsEventListeners();
     }
   });
 }
@@ -244,6 +256,7 @@ function addNewTaskGroup() {
   const selection = window.getSelection();
   selection.removeAllRanges();
   selection.addRange(range);
+  addDeleteButtonsEventListeners();
 }
 
 function addTask() {
@@ -324,3 +337,47 @@ function updateCircleProgress(percent) {
   circle.style.strokeDashoffset = offset;
 }
 
+function addDeleteButtonsEventListeners() {
+  const deleteButtons = document.querySelectorAll('.delete-button');
+  deleteButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const taskId = Number(this.dataset.taskId);
+      const taskType = this.dataset.taskType;
+      const taskGroup = this.dataset.taskGroup;
+
+      if (taskType === 'daily') {
+        fetch(`/todolist/${taskId}`, {
+          method: 'DELETE'
+        })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Ошибка при удалении задачи на сервере');
+              }
+              loadDailyTasks();
+              updateProgress();
+            })
+            .catch(error => {
+              alert('Не удалось удалить задачу. Попробуйте позже.');
+              console.error(error);
+            });
+      } else if (taskType === 'weekly') {
+        console.log('Удаление недельной задачи');
+        taskGroups.forEach(group => {
+          if (group.id === taskGroup || group.title.toLowerCase().replace(' ', '-') === taskGroup) {
+            group.tasks = group.tasks.filter(task => task.id !== taskId);
+          }
+        });
+        loadWeeklyTasks();
+      }
+    });
+  });
+
+  const deleteGroupButtons = document.querySelectorAll('.delete-group-button');
+  deleteGroupButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const groupId = this.dataset.groupId;
+      taskGroups = taskGroups.filter(group => group.id !== groupId);
+      loadWeeklyTasks();
+    });
+  });
+}
