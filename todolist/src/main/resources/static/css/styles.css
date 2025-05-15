@@ -303,7 +303,7 @@ body {
 .progress-percentage {
   font-size: 26px;
   font-weight: 700;
-  margin: 10px 0
+  margin: 10px 0;
   color: var(--primary-color);
   font-family: 'Krona One', sans-serif;
 }
@@ -408,3 +408,76 @@ body {
   width: 60px; /* Размер иконки */
   height: 60px;
 }
+
+.delete-button {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  font-size: 1em;
+  line-height: 1;
+  cursor: pointer;
+  margin-left: 8px;
+  padding: 0;
+  outline: none;
+}
+
+.delete-button:hover {
+  color: #e04f4f;
+}
+
+.weekly-task-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.weekly-task-item:last-child {
+  border-bottom: none;
+}
+
+.weekly-task-item .task-content {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+.weekly-task-item .weekly-task-checkbox {
+  margin-right: 8px;
+}
+
+.weekly-task-item .weekly-task-label {
+  flex-grow: 1;
+  word-break: break-word;
+}
+
+.delete-group-button {
+  background: none;
+  border: none;
+  color: #cc0000;
+  font-size: 1em;
+  line-height: 1;
+  cursor: pointer;
+  margin-left: 8px;
+  padding: 0;
+  outline: none;
+}
+
+.delete-group-button:hover {
+  color: #990000;
+}
+
+.add-weekly-task-button {
+  background: none;
+  border: none;
+  color: #9797CE;
+  font-size: 1.5em;
+  line-height: 1;
+  cursor: pointer;
+  padding: 5px;
+  outline: none;
+  align-self: flex-start;
+  margin-bottom: 5px;
+}
+
