@@ -421,6 +421,18 @@ body {
   outline: none;
 }
 
+.delete-button {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  font-size: 1em;
+  line-height: 1;
+  cursor: pointer;
+  margin-left: 8px;
+  padding: 0;
+  outline: none;
+}
+
 .delete-button:hover {
   color: #e04f4f;
 }
@@ -481,3 +493,140 @@ body {
   margin-bottom: 5px;
 }
 
+.edit-button {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 1em;
+  line-height: 1;
+  cursor: pointer;
+  margin-left: 8px;
+  padding: 0;
+  outline: none;
+}
+
+.edit-button:hover {
+  color: var(--secondary-color);
+}
+
+.task-actions {
+  display: flex;
+  align-items: center;
+}
+
+.task-title[contenteditable="true"],
+.task-details[contenteditable="true"],
+.weekly-task-label[contenteditable="true"] {
+  outline: 2px solid var(--primary-color);
+  border-radius: 4px;
+  padding: 2px 4px;
+  background-color: rgba(151, 151, 206, 0.1);
+}
+
+.task-title[contenteditable="true"]:focus,
+.task-details[contenteditable="true"]:focus,
+.weekly-task-label[contenteditable="true"]:focus {
+  outline: 2px solid var(--secondary-color);
+  background-color: rgba(151, 151, 206, 0.2);
+}
+
+.task-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* Добавляем небольшой отступ между кнопками */
+}
+
+.task-actions button {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.edit-button {
+  color: var(--primary-color);
+}
+
+.edit-button:hover {
+  color: var(--secondary-color);
+}
+
+.delete-button {
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.delete-button:hover {
+  color: #e04f4f;
+}
+
+
+.weekly-task-item .edit-button {
+  display: none;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #F6F5FB;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+.auth-container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 30px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+}
+
+.auth-container h1 {
+  text-align: center;
+  color: #9370DB;
+  margin-bottom: 30px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background: #9370DB;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.submit-btn:hover {
+  background: #7d5bbe;
+}

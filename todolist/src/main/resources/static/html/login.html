@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход | TU Dushka</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Krona+One&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: #F6F5FB;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    
+    .auth-container {
+      width: 100%;
+      max-width: 400px;
+      padding: 40px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    
+    .auth-container h1 {
+      font-family: 'Krona One', sans-serif;
+      text-align: center;
+      color: #9797CE;
+      margin-bottom: 32px;
+      font-size: 24px;
+    }
+    
+    .form-group {
+      margin-bottom: 24px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+      font-size: 16px;
+    }
+    
+    .form-group input {
+      width: calc(100% - 32px);
+      padding: 14px 16px;
+      border: 1px solid #E6E6FA;
+      border-radius: 8px;
+      font-size: 16px;
+      background-color: #F6F5FB;
+    }
+    
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: #9797CE;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Krona One', sans-serif;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .submit-btn:hover {
+      background: #7d5bbe;
+    }
+
+    .error-message {
+        color: red;
+        margin-top: 8px;
+        text-align: center;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <h1>Entrance</h1>
+    <form id="loginForm">
+      <div class="form-group">
+        <label>Электронная почта</label>
+        <input type="email" id="email" placeholder="Введите электронную почту" required>
+      </div>
+      <div class="form-group">
+        <label>Пароль</label>
+        <input type="password" id="password" placeholder="Введите пароль для входа" required>
+      </div>
+      <button type="submit" class="submit-btn">Enter</button>
+      <div class="error-message" id="errorMessage"></div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorMessageElement = document.getElementById('errorMessage');
+
+      fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: email, password: password })
+      })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          return response.json().then(error => {  
+            throw new Error(error.message || 'Неверный логин или пароль'); 
+          });
+        }
+      })
+      .then(data => {
+        localStorage.setItem('token', data.token);
+
+        window.location.href = 'app.html';
+      })
+      .catch(error => {
+          console.error("Login error:", error);
+          errorMessageElement.textContent = error.message;
+      });
+    });
+  </script>
+</body>
+</html>

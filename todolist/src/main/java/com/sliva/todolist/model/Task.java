@@ -56,7 +56,17 @@ public class Task {
         this.description = description;
     }
 
+    @ManyToOne
+    @JoinColumn(name = "group_id")
+    private TaskGroup group;
 
+    public TaskGroup getGroup() {
+        return group;
+    }
+
+    public void setGroup(TaskGroup group) {
+        this.group = group;
+    }
     public Task() {
 
     }

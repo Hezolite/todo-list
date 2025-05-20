@@ -92,15 +92,19 @@ function loadDailyTasks() {
         dailyTasksForDate.forEach(task => {
           const taskElement = document.createElement('div');
           taskElement.className = 'task-item';
+          taskElement.dataset.taskId = task.id;
           taskElement.innerHTML = `
           <input type="checkbox" id="${task.id}" class="task-checkbox" ${task.completed ? 'checked' : ''}
-          onchange="toggleTaskCompletion('${dateKey}', '${task.id}')">
+            onchange="toggleTaskCompletion('${dateKey}', '${task.id}')">
           <div class="task-text">
-            <div class="task-title">${task.title}</div>
-            <div class="task-details">${task.description}</div>
+            <div class="task-title" contenteditable="false">${task.title}</div>
+            <div class="task-details" contenteditable="false">${task.description}</div>
           </div>
-          <button class="delete-button" data-task-id="${task.id}" data-task-type="daily">×</button>
-          `;
+          <div class="task-actions">
+            <button class="edit-button" data-task-id="${task.id}" data-task-type="daily">✏️</button>
+            <button class="delete-button" data-task-id="${task.id}" data-task-type="daily">×</button>
+          </div>
+        `;
           dailyTasks.appendChild(taskElement);
         });
         addDeleteButtonsEventListeners();
@@ -140,7 +144,7 @@ function toggleTaskCompletion(dateKey, taskId) {
 function loadWeeklyTasks() {
   const container = document.getElementById('weeklyTasksContainer');
   container.innerHTML = '';
-  
+
   taskGroups.forEach(group => {
     const groupElement = document.createElement('div');
     groupElement.className = 'weekly-task-block';
@@ -151,19 +155,21 @@ function loadWeeklyTasks() {
         <button class="delete-group-button" data-group-id="${group.id}">×</button>
       </div>
       ${group.tasks.map(task => `
-        <div class="weekly-task-item">
+         <div class="weekly-task-item" data-task-id="${task.id}" data-group-id="${group.id}">
           <div class="task-content">
             <input type="checkbox" id="${task.id}" class="weekly-task-checkbox" ${task.completed ? 'checked' : ''}>
             <label for="${task.id}" class="weekly-task-label">${task.title}</label>
           </div>
-          <button class="delete-button" data-task-id="${task.id}" data-task-group="${group.id}" data-task-type="weekly">×</button>
+          <div class="task-actions">
+            <button class="delete-button" data-task-id="${task.id}" data-task-group="${group.id}" data-task-type="weekly">×</button>
+          </div>
         </div>
       `).join('')}
       <input type="text" class="weekly-task-input" placeholder="Введите задачу">
     `;
     container.appendChild(groupElement);
   });
-  
+
   document.querySelectorAll('.editable-group-name').forEach(el => {
     el.contentEditable = true;
     el.addEventListener('keydown', function(e) {
@@ -173,7 +179,7 @@ function loadWeeklyTasks() {
       }
     });
   });
-  
+
   const addGroupBtn = document.createElement('button');
   addGroupBtn.className = 'add-group-btn';
   addGroupBtn.textContent = 'Добавить группу';
@@ -185,10 +191,10 @@ function loadWeeklyTasks() {
 function showWeeklyTaskInput(button) {
   const taskBlock = button.closest('.weekly-task-block');
   const input = taskBlock.querySelector('.weekly-task-input');
-  
+
   input.style.display = 'block';
   input.focus();
-  
+
   input.addEventListener('keypress', function(e) {
     if (e.key === 'Enter' && input.value.trim()) {
       const newId = 'weekly-task-' + Date.now();
@@ -199,7 +205,10 @@ function showWeeklyTaskInput(button) {
           <input type="checkbox" id="${newId}" class="weekly-task-checkbox">
           <label for="${newId}" class="weekly-task-label">${input.value.trim()}</label>
         </div>
-        <button class="delete-button" data-task-id="${newId}" data-task-group="${taskBlock.querySelector('.editable-group-name').textContent.toLowerCase().replace(' ', '-')}" data-task-type="weekly">×</button>
+        <div class="task-actions">
+          <button class="edit-button" data-task-id="${newId}" data-task-group="${taskBlock.querySelector('.editable-group-name').textContent.toLowerCase().replace(' ', '-')}" data-task-type="weekly">✏️</button>
+          <button class="delete-button" data-task-id="${newId}" data-task-group="${taskBlock.querySelector('.editable-group-name').textContent.toLowerCase().replace(' ', '-')}" data-task-type="weekly">×</button>
+        </div>
       `;
 
       taskBlock.insertBefore(newTask, input);
@@ -214,43 +223,43 @@ function addNewTaskGroup() {
   const container = document.getElementById('weeklyTasksContainer');
   const newGroup = document.createElement('div');
   newGroup.className = 'weekly-task-block';
-  
+
   const header = document.createElement('div');
   header.className = 'weekly-task-header';
-  
+
   const nameSpan = document.createElement('span');
   nameSpan.textContent = 'Новая группа';
   nameSpan.contentEditable = true;
   nameSpan.className = 'editable-group-name';
-  
+
   nameSpan.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
       this.blur();
     }
   });
-  
+
   const addButton = document.createElement('button');
   addButton.textContent = '+';
   addButton.onclick = function() { showWeeklyTaskInput(this); };
-  
+
   header.appendChild(nameSpan);
   header.appendChild(addButton);
-  
+
   newGroup.appendChild(header);
-  
+
   const taskInput = document.createElement('input');
   taskInput.type = 'text';
   taskInput.className = 'weekly-task-input';
   taskInput.placeholder = 'Введите задачу';
-  
+
   newGroup.appendChild(taskInput);
-  
+
   const addButtonElement = container.querySelector('.add-group-btn');
   container.insertBefore(newGroup, addButtonElement);
-  
+
   nameSpan.focus();
-  
+
   const range = document.createRange();
   range.selectNodeContents(nameSpan);
   const selection = window.getSelection();
@@ -372,6 +381,16 @@ function addDeleteButtonsEventListeners() {
     });
   });
 
+  const editButtons = document.querySelectorAll('.edit-button');
+  editButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const taskId = this.dataset.taskId;
+      const taskType = this.dataset.taskType;
+      const taskGroup = this.dataset.taskGroup;
+      editTask(taskId, taskType, taskGroup);
+    });
+  });
+
   const deleteGroupButtons = document.querySelectorAll('.delete-group-button');
   deleteGroupButtons.forEach(button => {
     button.addEventListener('click', function() {
@@ -381,3 +400,124 @@ function addDeleteButtonsEventListeners() {
     });
   });
 }
+
+function editTask(taskId, taskType, taskGroup = null) {
+  if (taskType === 'daily') {
+    const dateKey = selectedDate.toISOString().split('T')[0];
+    const task = tasksStorage[dateKey].find(t => t.id === taskId);
+    if (task) {
+      document.getElementById('task-title').value = task.title;
+      document.getElementById('task-description').value = task.description || '';
+
+      tasksStorage[dateKey] = tasksStorage[dateKey].filter(t => t.id !== taskId);
+
+      document.getElementById('task-title').focus();
+    }
+  } else if (taskType === 'weekly') {
+    const group = taskGroups.find(g => g.id === taskGroup);
+    if (group) {
+      const task = group.tasks.find(t => t.id === taskId);
+      if (task) {
+        document.getElementById('task-title').value = task.title;
+        document.getElementById('task-description').value = task.description || '';
+
+        group.tasks = group.tasks.filter(t => t.id !== taskId);
+
+        document.getElementById('task-title').focus();
+      }
+    }
+  }
+}
+
+const editButtons = document.querySelectorAll('.task-item .edit-button');
+editButtons.forEach(button => {
+  button.addEventListener('click', function(e) {
+    e.stopPropagation();
+    const taskId = this.dataset.taskId;
+    const taskElement = this.closest('.task-item');
+
+    // Включаем редактирование только для daily задач
+    enableTaskEditing(taskElement, 'daily');
+  });
+});
+
+function enableTaskEditing(taskElement, taskType) {
+  if (taskType !== 'daily') return;
+
+  const titleElement = taskElement.querySelector('.task-title');
+  const detailsElement = taskElement.querySelector('.task-details');
+  const taskId = taskElement.dataset.taskId;
+
+  titleElement.contentEditable = true;
+  titleElement.focus();
+
+  if (detailsElement) {
+    detailsElement.contentEditable = true;
+  }
+
+  // Выделяем весь текст для удобства редактирования
+  const range = document.createRange();
+  range.selectNodeContents(titleElement);
+  const selection = window.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(range);
+
+  const saveHandler = () => {
+    titleElement.contentEditable = false;
+    if (detailsElement) detailsElement.contentEditable = false;
+
+    const newTitle = titleElement.textContent.trim();
+    const newDescription = detailsElement ? detailsElement.textContent.trim() : '';
+
+    // Отправляем обновленные данные на сервер
+    fetch(`/todolist/${taskId}/update`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title: newTitle,
+        description: newDescription
+      })
+    })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Ошибка при обновлении задачи');
+          }
+          return response.json();
+        })
+        .then(updatedTask => {
+          console.log('Задача успешно обновлена:', updatedTask);
+          // Обновляем локальное представление
+          loadDailyTasks();
+        })
+        .catch(error => {
+          console.error('Ошибка при обновлении задачи:', error);
+          // В случае ошибки возвращаем предыдущие значения
+          titleElement.textContent = taskElement.dataset.originalTitle || '';
+          if (detailsElement) {
+            detailsElement.textContent = taskElement.dataset.originalDescription || '';
+          }
+        });
+
+    titleElement.removeEventListener('blur', saveHandler);
+    document.removeEventListener('keydown', keyDownHandler);
+  };
+
+  const keyDownHandler = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveHandler();
+    }
+  };
+
+  // Сохраняем оригинальные значения на случай ошибки
+  taskElement.dataset.originalTitle = titleElement.textContent;
+  if (detailsElement) {
+    taskElement.dataset.originalDescription = detailsElement.textContent;
+  }
+
+  titleElement.addEventListener('blur', saveHandler);
+  document.addEventListener('keydown', keyDownHandler);
+}
+

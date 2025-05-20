@@ -4,17 +4,40 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title> TU Dushka</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="/css/styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Krona+One&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="header">
-  <div class="logo"> <img src="img/logo-icon.svg" class="logo-icon" alt="Логотип"> TU Dushka</div>
+  <div class="logo"> <img src="/img/logo-icon.svg" class="logo-icon" alt="Логотип"> TU Dushka</div>
   <div class="current-date" id="currentDate"></div>
 </div>
 
 <div class="container">
   <div class="weekly-tasks" id="weeklyTasksContainer">
+    <div class="weekly-task-block">
+      <div class="weekly-task-header">
+        <span>Задачи на неделю</span>
+        <button onclick="showWeeklyTaskInput(this)">+</button>
+      </div>
+      <div class="weekly-task-item">
+        <div class="task-content">
+          <input type="checkbox" id="${task.id}" class="weekly-task-checkbox" ${task.completed ? 'checked' : ''}>
+          <label for="${task.id}" class="weekly-task-label editable-title" data-task-id="${task.id}" contenteditable="false">${task.title}</label>
+        </div>
+        <button class="delete-button" data-task-id="${task.id}" data-task-group="${group.id}" data-task-type="weekly">×</button>
+        <button class="edit-button" data-task-id="${task.id}" data-task-type="weekly" data-task-group="${group.id}">✎</button>
+      </div>
+      <div class="weekly-task-item">
+        <div class="task-content">
+          <input type="checkbox" id="weekly-task-2" class="weekly-task-checkbox" checked>
+          <label for="weekly-task-2" class="weekly-task-label">Придумать подарок</label>
+        </div>
+        <button class="delete-button" data-task-id="weekly-task-2">×</button>
+      </div>
+      <input type="text" class="weekly-task-input" placeholder="Введите задачу">
+    </div>
+    <button class="add-group-btn" onclick="addNewTaskGroup()">Добавить группу</button>
   </div>
 
   <div class="main-content">
@@ -35,7 +58,7 @@
             <svg viewBox="0 0 100 100" class="progress-ring">
               <circle cx="50" cy="50" r="45" class="progress-ring-circle" />
             </svg>
-            <img src="img/checkmark.svg" class="progress-icon" alt="Галочка" />
+            <img src="/img/checkmark.svg" class="progress-icon" alt="Галочка" />
           </div>
           <div class="progress-percentage" id="progressPercentage">0%</div>
           <div class="progress-text">У тебя все получится!</div>
@@ -55,6 +78,6 @@
   </div>
 </div>
 
-<script src="js/script.js"></script>
+<script src="/js/script.js"></script>
 </body>
 </html>
