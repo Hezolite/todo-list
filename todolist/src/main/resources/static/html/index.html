@@ -14,32 +14,6 @@
 </div>
 
 <div class="container">
-  <div class="weekly-tasks" id="weeklyTasksContainer">
-    <div class="weekly-task-block">
-      <div class="weekly-task-header">
-        <span>Задачи на неделю</span>
-        <button onclick="showWeeklyTaskInput(this)">+</button>
-      </div>
-      <div class="weekly-task-item">
-        <div class="task-content">
-          <input type="checkbox" id="${task.id}" class="weekly-task-checkbox" ${task.completed ? 'checked' : ''}>
-          <label for="${task.id}" class="weekly-task-label editable-title" data-task-id="${task.id}" contenteditable="false">${task.title}</label>
-        </div>
-        <button class="delete-button" data-task-id="${task.id}" data-task-group="${group.id}" data-task-type="weekly">×</button>
-        <button class="edit-button" data-task-id="${task.id}" data-task-type="weekly" data-task-group="${group.id}">✎</button>
-      </div>
-      <div class="weekly-task-item">
-        <div class="task-content">
-          <input type="checkbox" id="weekly-task-2" class="weekly-task-checkbox" checked>
-          <label for="weekly-task-2" class="weekly-task-label">Придумать подарок</label>
-        </div>
-        <button class="delete-button" data-task-id="weekly-task-2">×</button>
-      </div>
-      <input type="text" class="weekly-task-input" placeholder="Введите задачу">
-    </div>
-    <button class="add-group-btn" onclick="addNewTaskGroup()">Добавить группу</button>
-  </div>
-
   <div class="main-content">
     <div class="date-selector">
       <button onclick="changeWeek(-1)">&lt;</button>
