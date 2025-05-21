@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Вход | TU Dushka</title>
   <link rel="stylesheet" href="/css/styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Krona+One&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Krona+One&family=Roboto:wght@400;500&display=swap"
+    rel="stylesheet">
   <style>
     body {
       margin: 0;
@@ -17,16 +19,16 @@
       align-items: center;
       min-height: 100vh;
     }
-    
+
     .auth-container {
       width: 100%;
       max-width: 400px;
       padding: 40px;
       background: white;
       border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     }
-    
+
     .auth-container h1 {
       font-family: 'Krona One', sans-serif;
       text-align: center;
@@ -34,11 +36,11 @@
       margin-bottom: 32px;
       font-size: 24px;
     }
-    
+
     .form-group {
       margin-bottom: 24px;
     }
-    
+
     .form-group label {
       display: block;
       margin-bottom: 8px;
@@ -46,7 +48,7 @@
       font-weight: 500;
       font-size: 16px;
     }
-    
+
     .form-group input {
       width: calc(100% - 32px);
       padding: 14px 16px;
@@ -55,7 +57,7 @@
       font-size: 16px;
       background-color: #F6F5FB;
     }
-    
+
     .submit-btn {
       width: 100%;
       padding: 14px;
@@ -68,22 +70,36 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    
+
     .submit-btn:hover {
       background: #7d5bbe;
     }
 
     .error-message {
-        color: red;
-        margin-top: 8px;
-        text-align: center;
+      color: red;
+      margin-top: 8px;
+      text-align: center;
     }
 
+    .switch-form {
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    .switch-form a {
+      color: #9797CE;
+      text-decoration: none;
+    }
+
+    .switch-form a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
+
 <body>
   <div class="auth-container">
-    <h1>Entrance</h1>
+    <h1 id="formTitle">Вход</h1>
     <form id="loginForm">
       <div class="form-group">
         <label>Электронная почта</label>
@@ -91,17 +107,63 @@
       </div>
       <div class="form-group">
         <label>Пароль</label>
-        <input type="password" id="password" placeholder="Введите пароль для входа" required>
+        <input type="password" id="password" placeholder="Введите пароль" required>
       </div>
-      <button type="submit" class="submit-btn">Enter</button>
+      <button type="submit" class="submit-btn">Войти</button>
       <div class="error-message" id="errorMessage"></div>
+      <div class="switch-form">
+        <a href="#" id="showRegister">Нет аккаунта? Зарегистрироваться</a>
+      </div>
+    </form>
+
+    <form id="registerForm" style="display:none;">
+      <div class="form-group">
+        <label>Имя</label>
+        <input type="text" id="regFirstName" placeholder="Введите имя" required>
+      </div>
+      <div class="form-group">
+        <label>Фамилия</label>
+        <input type="text" id="regLastName" placeholder="Введите фамилию" required>
+      </div>
+      <div class="form-group">
+        <label>Электронная почта</label>
+        <input type="email" id="regEmail" placeholder="Введите электронную почту" required>
+      </div>
+      <div class="form-group">
+        <label>Пароль</label>
+        <input type="password" id="regPassword" placeholder="Придумайте пароль" required>
+      </div>
+      <button type="submit" class="submit-btn">Зарегистрироваться</button>
+      <div class="error-message" id="registerErrorMessage"></div>
+      <div class="switch-form">
+        <a href="#" id="showLogin">Уже есть аккаунт? Войти</a>
+      </div>
     </form>
   </div>
 
   <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const showRegister = document.getElementById('showRegister');
+    const showLogin = document.getElementById('showLogin');
+    const formTitle = document.getElementById('formTitle');
 
+    showRegister.addEventListener('click', function (e) {
+      e.preventDefault();
+      loginForm.style.display = 'none';
+      registerForm.style.display = 'block';
+      formTitle.textContent = 'Регистрация';
+    });
+
+    showLogin.addEventListener('click', function (e) {
+      e.preventDefault();
+      registerForm.style.display = 'none';
+      loginForm.style.display = 'block';
+      formTitle.textContent = 'Вход';
+    });
+
+    loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
       const errorMessageElement = document.getElementById('errorMessage');
@@ -111,27 +173,78 @@
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email: email, password: password })
+        body: JSON.stringify({ email, password })
       })
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          return response.json().then(error => {  
-            throw new Error(error.message || 'Неверный логин или пароль'); 
-          });
-        }
-      })
-      .then(data => {
-        localStorage.setItem('token', data.token);
-
-        window.location.href = 'app.html';
-      })
-      .catch(error => {
+        .then(response => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            return response.json().then(error => {
+              throw new Error(error.message || 'Неверный логин или пароль');
+            });
+          }
+        })
+        .then(data => {
+          localStorage.setItem('token', data.token);
+          window.location.href = '/html/index.html';
+        })
+        .catch(error => {
           console.error("Login error:", error);
           errorMessageElement.textContent = error.message;
-      });
+        });
+    });
+
+    registerForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const firstName = document.getElementById('regFirstName').value;
+      const lastName = document.getElementById('regLastName').value;
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+      const errorMessageElement = document.getElementById('registerErrorMessage');
+
+      fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ firstName, lastName, email, password })
+      })
+        .then(response => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            return response.json().then(error => {
+              throw new Error(error.message || 'Ошибка регистрации');
+            });
+          }
+        })
+        .then(data => {
+          // After successful registration, automatically log in
+          return fetch('/api/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+          });
+        })
+        .then(response => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error('Ошибка автоматического входа после регистрации');
+          }
+        })
+        .then(data => {
+          localStorage.setItem('token', data.token);
+          window.location.href = '/html/index.html';
+        })
+        .catch(error => {
+          console.error("Register error:", error);
+          errorMessageElement.textContent = error.message;
+        });
     });
   </script>
 </body>
+
 </html>

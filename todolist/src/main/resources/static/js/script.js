@@ -2,6 +2,13 @@ let currentDate = new Date();
 let selectedDate = new Date();
 
 document.addEventListener('DOMContentLoaded', function () {
+  // Check if user is logged in
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = '/html/login.html';
+    return;
+  }
+
   currentDate = new Date();
   currentDate.setHours(0, 0, 0, 0);
   selectedDate = new Date(currentDate);
@@ -65,18 +72,39 @@ function changeWeek(direction) {
 function loadDailyTasks() {
   const dailyTasks = document.getElementById('dailyTasks');
   const dateKey = selectedDate.toISOString().split('T')[0];
+  const token = localStorage.getItem('token');
 
-  return fetch(`/todolist`)
+  console.log('Current token:', token); // Debug log
+
+  if (!token) {
+    window.location.href = '/html/login.html';
+    return;
+  }
+
+  return fetch(`/todolist`, {
+    headers: {
+      'Authorization': token
+    }
+  })
     .then(response => {
       if (!response.ok) {
-        throw new Error('Ошибка сети' + response.statusText);
+        if (response.status === 401) {
+          window.location.href = '/html/login.html';
+          return;
+        }
+        return response.json().then(error => {
+          console.error('Server error response:', error); // Debug log
+          throw new Error(error.message || 'Ошибка сети: ' + response.statusText);
+        });
       }
       return response.json();
     })
     .then(tasks => {
+      console.log('Received tasks:', tasks); // Debug log
       dailyTasks.innerHTML = '';
 
       const dailyTasksForDate = tasks.filter(task => task.deadline === dateKey);
+      console.log('Filtered tasks for date:', dailyTasksForDate); // Debug log
 
       dailyTasksForDate.forEach(task => {
         const taskElement = document.createElement('div');
@@ -100,22 +128,29 @@ function loadDailyTasks() {
     })
     .catch(error => {
       console.error('Ошибка:', error);
+      dailyTasks.innerHTML = `<div class="error-message">${error.message}</div>`;
     });
 }
 
 function toggleTaskCompletion(dateKey, taskId) {
   const checkbox = document.getElementById(taskId);
   const completed = checkbox.checked;
+  const token = localStorage.getItem('token');
 
   fetch(`/todolist/${taskId}`, {
     method: 'PUT',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': token
     },
     body: JSON.stringify({ completed: completed })
   })
     .then(response => {
       if (!response.ok) {
+        if (response.status === 401) {
+          window.location.href = '/html/login.html';
+          return;
+        }
         throw new Error('Ошибка сети' + response.statusText);
       }
       return response.json();
@@ -128,10 +163,15 @@ function toggleTaskCompletion(dateKey, taskId) {
     });
 }
 
-
 function addTask() {
   const title = document.getElementById('task-title').value.trim();
   const description = document.getElementById('task-description').value.trim();
+  const token = localStorage.getItem('token');
+
+  if (!token) {
+    window.location.href = '/html/login.html';
+    return;
+  }
 
   if (!title) return;
 
@@ -147,13 +187,20 @@ function addTask() {
   fetch('/todolist', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': token
     },
     body: JSON.stringify(task)
   })
     .then(response => {
       if (!response.ok) {
-        throw new Error('Ошибка сети' + response.statusText);
+        if (response.status === 401) {
+          window.location.href = '/html/login.html';
+          return;
+        }
+        return response.json().then(error => {
+          throw new Error(error.message || 'Ошибка сети: ' + response.statusText);
+        });
       }
       return response.json();
     })
@@ -164,15 +211,25 @@ function addTask() {
     })
     .catch(error => {
       console.error('Ошибка:', error);
+      alert(error.message);
     });
 }
 
 function updateProgress() {
   const dateKey = selectedDate.toISOString().split('T')[0];
+  const token = localStorage.getItem('token');
 
-  fetch(`/todolist`)
+  fetch(`/todolist`, {
+    headers: {
+      'Authorization': token
+    }
+  })
     .then(response => {
       if (!response.ok) {
+        if (response.status === 401) {
+          window.location.href = '/html/login.html';
+          return;
+        }
         throw new Error('Ошибка сети' + response.statusText);
       }
       return response.json();
@@ -207,6 +264,8 @@ function updateCircleProgress(percent) {
 
 function addDeleteButtonsEventListeners() {
   const deleteButtons = document.querySelectorAll('.delete-button');
+  const token = localStorage.getItem('token');
+
   deleteButtons.forEach(button => {
     button.addEventListener('click', function () {
       const taskId = Number(this.dataset.taskId);
@@ -214,9 +273,19 @@ function addDeleteButtonsEventListeners() {
 
       if (taskType === 'daily') {
         fetch(`/todolist/${taskId}`, {
-          method: 'DELETE'
+          method: 'DELETE',
+          headers: {
+            'Authorization': token
+          }
         })
           .then(response => {
+            if (!response.ok) {
+              if (response.status === 401) {
+                window.location.href = '/html/login.html';
+                return;
+              }
+              throw new Error('Ошибка сети');
+            }
             loadDailyTasks();
             updateProgress();
           })
@@ -239,10 +308,26 @@ function addDeleteButtonsEventListeners() {
 
 function editTask(taskId, taskType) {
   if (taskType === 'daily') {
-    fetch(`/todolist/${taskId}`)
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = '/html/login.html';
+      return;
+    }
+
+    fetch(`/todolist/${taskId}`, {
+      headers: {
+        'Authorization': token
+      }
+    })
       .then(response => {
         if (!response.ok) {
-          throw new Error('Ошибка при получении задачи');
+          if (response.status === 401) {
+            window.location.href = '/html/login.html';
+            return;
+          }
+          return response.json().then(error => {
+            throw new Error(error.message || 'Ошибка при получении задачи');
+          });
         }
         return response.json();
       })
@@ -264,16 +349,23 @@ function editTask(taskId, taskType) {
             description: description || ''
           };
 
-          fetch(`/todolist/${taskId}/update`, {
+          fetch(`/todolist/${taskId}`, {
             method: 'PUT',
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Authorization': token
             },
             body: JSON.stringify(updatedTask)
           })
             .then(response => {
               if (!response.ok) {
-                throw new Error('Ошибка при обновлении задачи');
+                if (response.status === 401) {
+                  window.location.href = '/html/login.html';
+                  return;
+                }
+                return response.json().then(error => {
+                  throw new Error(error.message || 'Ошибка при обновлении задачи');
+                });
               }
               return response.json();
             })
@@ -288,7 +380,7 @@ function editTask(taskId, taskType) {
             })
             .catch(error => {
               console.error('Ошибка при обновлении задачи:', error);
-              alert('Не удалось обновить задачу');
+              alert(error.message);
             });
         };
 
@@ -296,7 +388,7 @@ function editTask(taskId, taskType) {
       })
       .catch(error => {
         console.error('Ошибка при получении задачи:', error);
-        alert('Не удалось загрузить задачу для редактирования');
+        alert(error.message);
       });
   }
 }
@@ -383,5 +475,10 @@ function enableTaskEditing(taskElement, taskType) {
 
   titleElement.addEventListener('blur', saveHandler);
   document.addEventListener('keydown', keyDownHandler);
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = '/html/login.html';
 }
 
