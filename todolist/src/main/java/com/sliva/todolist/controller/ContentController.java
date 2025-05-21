@@ -8,6 +8,6 @@ public class ContentController {
     @GetMapping("/")
     public String index()
     {
-        return "forward:/index.html";
+        return "forward:/html/login.html";
     }
 }
